@@ -1,37 +1,30 @@
-import requests
-from os import environ
+import requests as req
 
-def get_lights():
-  newURL = URL + environ['USERNAME'] + "/lights"
-  print get(newURL)
+class Bridge(object):
 
-def get_light(id):
-  newURL = URL + environ['USERNAME'] + "/lights/" + str(id)
-  print get(newURL)
+  def __init__(self, ip, username):
+    self.ip = ip
+    self.url = "http://"+ip+"/api/"+username
+    print ("new bridge at ip " + ip)
 
-def set_light(id, state):
-  newURL = URL + environ['USERNAME'] + "/lights/" + str(id) + "/state"
-  data = '{"on": ' + state + "}"
+  def get_lights(self):
+    path = "/lights"
+    return self.request('GET', path, None)
 
-  r = requests.put(newURL, data = data) 
-    
-  response = r.text 
-  print response
+  def get_light(self, id):
+    path = environ['USERNAME'] + "/lights/" + str(id)
+    return self.request('GET', path, None)
 
-def get(URL):
-  r = requests.get(url = URL) 
-  return r.json();
+  def set_light(self, id, state):
+    path = "/lights/" + str(id) + "/state"
+    data = '{"on": ' + state + "}"
 
-def main():
-  if environ.get('USERNAME') is not None:
-    # get_lights()
-    # get_light(1)
-    set_light(1, "true")
+    return self.request('PUT', path, data = data) 
+      
+    # response = r.text 
+    # return response
 
-  else:
-    print "Enviornmental variable USERNAME must be set. Use export USERNAME='your_username' to run."
-
-URL = "http://10.0.0.10/api/"
-
-if __name__ == "__main__":
-    main()
+  def request(self, method, path, data):
+    URL = self.url + path
+    r = req.request(method=method, url=URL, data=data) 
+    return r.json();
